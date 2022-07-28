@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>510</width>
-    <height>303</height>
+    <width>588</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
      <rect>
       <x>9</x>
       <y>9</y>
-      <width>476</width>
-      <height>232</height>
+      <width>551</width>
+      <height>351</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -34,17 +34,28 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_2"/>
+        <widget class="QLineEdit" name="lineEdit_2">
+         <property name="text">
+          <string>admin</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_2">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
          <property name="text">
           <string>hasło:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit"/>
+        <widget class="QLineEdit" name="lineEdit">
+         <property name="text">
+          <string>admin</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="pushButton_2">
@@ -72,8 +83,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>472</width>
-          <height>195</height>
+          <width>547</width>
+          <height>309</height>
          </rect>
         </property>
        </widget>
@@ -87,8 +98,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>510</width>
-     <height>21</height>
+     <width>588</width>
+     <height>25</height>
     </rect>
    </property>
   </widget>
