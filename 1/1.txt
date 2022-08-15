@@ -1,2 +1,0 @@
-chleb A 1 0.90
-woda A 1 1.20
