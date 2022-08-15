@@ -1,9 +1,6 @@
 <RCC>
-    <qresource prefix="/">
-        <file>1/1.txt</file>
-        <file>1/2.txt</file>
-        <file>1/3.txt</file>
-        <file>1/4.txt</file>
-        <file>1/5.txt</file>
+    <qresource prefix="/img">
+        <file>back.png</file>
+        <file>Toolery.qss</file>
     </qresource>
 </RCC>

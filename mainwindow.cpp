@@ -1,9 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 QString curr_logged = "0";
 
-std::vector <std::vector <QString>> getQuery(QString id){
+std::vector <std::vector <QString>> getLogs(QString id){
     std::vector <std::vector <QString>> line;
     QSqlQuery query;
     query.exec("SELECT * FROM log"+id);
@@ -19,41 +20,84 @@ std::vector <std::vector <QString>> getQuery(QString id){
     return line;
 }
 
-std::vector <QStringList> getProducts(QString idx){
-    std::vector <QStringList> Products;
-    Q_INIT_RESOURCE(source);
-    QFile file(":/"+ curr_logged +"/"+ idx +".txt");
-    if(!file.open(QIODevice::ReadOnly | QFile::Text)){
-        qDebug() << "Waring Cannon open file: " ;
-    }
-    QTextStream in(&file);
-    while (!in.atEnd())
-       {
-          QString line = in.readLine();
-          QStringList list = line.split(QLatin1Char(' '));
-          //qDebug()<<list;
-          Products.push_back(list);
-       }
-       file.close();
+std::vector <std::vector <QString>> getProducts(QString idx){
+    std::vector <std::vector <QString>> Products;
 
+    QSqlQuery query;
+    query.exec("SELECT * FROM p_"+curr_logged+"_"+idx);
+    while (query.next()) {
+       std::vector<QString> temp;
+        for (int i=1;i<5;i++){
+            QString name = query.value(i).toString();
+            temp.push_back(name);
+            //qDebug() << name;
+        }
+        Products.push_back(temp);
+        }
     return Products;
 };
-QString getLoginId(QString login, QString password){
+void MainWindow::logIn(){
     QSqlQuery query;
+    QString login= this->login_line->text(), password = this->password_line->text();
+
     query.exec("SELECT * FROM users WHERE login =\""+login+"\"");
        while (query.next())
        {
-          if (query.value(2).toString()== password) return query.value(0).toString();
+          if (query.value(2).toString()== password){
+              curr_logged = query.value(0).toString();
+              break;
+             }
+          else curr_logged = "0";
        }
-    return "0";
+
 }
+
+
+void MainWindow::LoginPanel(){
+
+    curr_logged = "0";
+    qDeleteAll(ui->scrollAreaWidgetContents->children());
+    ui->foot->setText("");
+    this->login_line = new QLineEdit("admin");
+    this->password_line = new QLineEdit("admin");
+    QVBoxLayout *ver = new QVBoxLayout();
+    QHBoxLayout *hor = new QHBoxLayout();
+    QLabel *llab = new QLabel("login");
+    QLabel *plab = new QLabel("hasło");
+    QLabel *lab = new QLabel("Witamy w eParagonie. Zaloguj się lub zarejestruj.");
+    lab->setFrameShape(QFrame::StyledPanel);
+
+    ver->addWidget(lab);
+    ver->addWidget(llab);
+    ver->addWidget(this->login_line);
+    ver->addWidget(plab);
+    ver->addWidget(this->password_line);
+
+    QPushButton *but1 = new QPushButton("zaloguj");
+    connect(but1, &QPushButton::released, this, &MainWindow::on_zaloguj_clicked);
+    QPushButton *but2 = new QPushButton("zarejestruj");
+    connect(but2, &QPushButton::released, this, &MainWindow::on_zarejestruj_clicked);
+    hor->addWidget(but1);
+    hor->addWidget(but2);
+
+    ver->addLayout(hor);
+    ui->scrollAreaWidgetContents->setLayout(ver);
+
+}
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    Q_INIT_RESOURCE(source);
 
+    QPixmap pixmap(":/img/back.png");
+    QIcon ButtonIcon(pixmap);
+    ui->pushButton_3->setIcon(ButtonIcon);
+    connect(ui->pushButton, &QPushButton::released, this, &MainWindow::LoginPanel);
+    this->LoginPanel();
 }
 
 MainWindow::~MainWindow()
@@ -76,18 +120,17 @@ DbManager::DbManager(const QString& path)
    }
 }
 
-void MainWindow::GoToProducts(){
-    qDeleteAll(ui->scrollAreaWidgetContents->children());
+void MainWindow::on_zaloguj_clicked(){
+    this->logIn();
+    this->LogsPanel();
 }
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::LogsPanel()
 {
-    QString ide = getLoginId(ui->lineEdit->text(),ui->lineEdit_2->text());
-    curr_logged = ide;
-    qDebug() <<ide;
     qDeleteAll(ui->scrollAreaWidgetContents->children());
+    ui->foot->setText("");
     QGridLayout * lay = new QGridLayout();
-    std::vector<std::vector <QString>> logs = getQuery(ide);
+    std::vector<std::vector <QString>> logs = getLogs(curr_logged);
     QString header[5] = {"lp","data","nr paragonu","id kasy","NIP"};
     for (int i=0;i<5;i++){
         QLabel *lab = new QLabel(header[i]);
@@ -106,7 +149,7 @@ void MainWindow::on_pushButton_2_clicked()
         connect(but, &QPushButton::clicked, [j, this](){
             float suma=0;
             qDeleteAll(ui->scrollAreaWidgetContents->children());
-            std::vector <QStringList> Products = getProducts(std::to_string(j+1).c_str());
+            std::vector <std::vector <QString>> Products = getProducts(std::to_string(j+1).c_str());
             QGridLayout * lay = new QGridLayout();
 
             QString header[4] = {"nazwa","VAT","ilość","cena"};
@@ -127,14 +170,12 @@ void MainWindow::on_pushButton_2_clicked()
 
             QString txt="Suma PLN: ";
             qDebug()<<suma;
-            txt += std::to_string(suma).c_str();
-            QLabel *lab = new QLabel(txt);
-            lab->setAlignment(Qt::AlignCenter);
-            lay->addWidget(lab,(int)Products.size()+1,0);
+            txt += QString::number(suma,'f',2);
+            ui->foot->setText(txt);
             ui->scrollAreaWidgetContents->setLayout(lay);
 
         });
-
+        //koniec przycisku Produkty
 
         for(int i=0;i<5;i++){
             QLabel *lab = new QLabel(logs[j][i]);
@@ -149,10 +190,9 @@ void MainWindow::on_pushButton_2_clicked()
 
 }
 
-
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_zarejestruj_clicked()
 {
-    QString login = ui->lineEdit->text(), password = ui->lineEdit_2->text();
+    QString login= this->login_line->text(), password = this->password_line->text();
     QSqlQuery query;
     QString q="INSERT INTO users(login, password) values(\""+login+"\",\""+password+"\");";
     //qDebug()<<q;
@@ -163,9 +203,15 @@ void MainWindow::on_pushButton_clicked()
          id = query.value(0).toString();
          //qDebug() <<id;
     }
-    q = "CREATE TABLE log"+id+"(ids integer primary key, data tex, nr_prg text, id_kasy text, NIP text);";
+    q = "CREATE TABLE log"+id+"(ids integer primary key, data text, nr_prg text, id_kasy text, NIP text);";
     query.exec(q);
     //qDebug()<<q;
 
+}
+
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    if (curr_logged!="0") this->LogsPanel();
 }
 

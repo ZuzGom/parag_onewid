@@ -5,13 +5,15 @@
 #include <QFile>
 #include <QtSql>
 #include <QPushButton>
+#include <QLineEdit>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
 #include <QFrame>
 #include <vector>
-
+#include <QPixmap>
+#include <QIcon>
 
 //#include <QMessageBox>
 class DbManager
@@ -33,11 +35,16 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void LoginPanel();
+    void LogsPanel();
+    void logIn();
+    QLineEdit *login_line;
+    QLineEdit *password_line;
+    void on_zaloguj_clicked();
+    void on_zarejestruj_clicked();
 
 private slots:
-    void on_pushButton_2_clicked();
-    void GoToProducts();
-    void on_pushButton_clicked();
+    void on_pushButton_3_clicked();
 
 private:
     Ui::MainWindow *ui;
